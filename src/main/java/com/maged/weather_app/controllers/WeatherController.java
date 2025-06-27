@@ -16,9 +16,7 @@ public class WeatherController {
     @Autowired
     private WeatherService weatherService;
 
-    @Autowired
-    private CityService cityService;
-
+    
     @GetMapping("/temperature")
     public String getTemperature() {
         String defaultCity = "New York";
@@ -36,24 +34,6 @@ public class WeatherController {
 
     @GetMapping("/temperatures")
     public List<String> getAllCityTemperatures() {
-        List<String> cities = cityService.fetchValidCityNames();
-
-        return cities.stream()
-                .map(city -> {
-                    Double temp = weatherService.getCityTemperature(city);
-                    return temp != null
-                            ? String.format("%s : %.2f°C", city, temp)
-                            : String.format("%s : N/A", city);
-                })
-                .sorted((a, b) -> {
-                    try {
-                        Double tempA = Double.parseDouble(a.split(":")[1].replace("°C", "").trim());
-                        Double tempB = Double.parseDouble(b.split(":")[1].replace("°C", "").trim());
-                        return Double.compare(tempB, tempA);
-                    } catch (Exception e) {
-                        return 0;
-                    }
-                })
-                .collect(Collectors.toList());
-    }
+        return weatherService.fetchTemperaturesForAllCities();
+     }
 }
