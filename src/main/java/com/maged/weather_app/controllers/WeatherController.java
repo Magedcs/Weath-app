@@ -1,0 +1,59 @@
+package com.maged.weather_app.controllers;
+
+import com.maged.weather_app.services.CityService;
+import com.maged.weather_app.services.WeatherService;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/weather")
+public class WeatherController {
+
+    @Autowired
+    private WeatherService weatherService;
+
+    @Autowired
+    private CityService cityService;
+
+    @GetMapping("/temperature")
+    public String getTemperature() {
+        String defaultCity = "New York";
+        Double temp = weatherService.getCityTemperature(defaultCity);
+        return temp != null ? String.format("Current temperature in %s is %.2f°C", defaultCity, temp) : "Temperature data not available.";
+    }
+
+    @GetMapping("/city/temperature")
+    public String getTemperatureByCity(@RequestParam("city") String city) {
+        Double temp = weatherService.getCityTemperature(city);
+        return temp != null
+                ? String.format("Current temperature in %s is %.2f°C", city, temp)
+                : String.format("Temperature data for %s not available.", city);
+    }
+
+    @GetMapping("/temperatures")
+    public List<String> getAllCityTemperatures() {
+        List<String> cities = cityService.fetchValidCityNames();
+
+        return cities.stream()
+                .map(city -> {
+                    Double temp = weatherService.getCityTemperature(city);
+                    return temp != null
+                            ? String.format("%s : %.2f°C", city, temp)
+                            : String.format("%s : N/A", city);
+                })
+                .sorted((a, b) -> {
+                    try {
+                        Double tempA = Double.parseDouble(a.split(":")[1].replace("°C", "").trim());
+                        Double tempB = Double.parseDouble(b.split(":")[1].replace("°C", "").trim());
+                        return Double.compare(tempB, tempA);
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+}
