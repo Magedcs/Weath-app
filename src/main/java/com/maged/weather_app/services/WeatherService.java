@@ -32,7 +32,8 @@ public class WeatherService {
     @Autowired
     private CityService cityService;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
 
     private static final Bucket bucket = Bucket.builder()
     .addLimit(limit -> limit
@@ -52,10 +53,13 @@ public class WeatherService {
                 String url = String.format("%s?q=%s&appid=%s&units=metric", apiUrl, city, apiKey);
                 WeatherResponse response = restTemplate.getForObject(url, WeatherResponse.class);
 
-                if(response == null || response.getMain() == null || response.getMain().getTemp() == null) 
-                     throw new FailedToFetchCityTemprature("Failed to fetch temperature for city: " + city);
-
+                if(response == null || response.getMain() == null || response.getMain().getTemp() == null) {
+                    throw new FailedToFetchCityTemprature("Failed to fetch temperature for city: " + city);
+                }
+        
                 return response.getMain().getTemp();
+            } catch (FailedToFetchCityTemprature e) {
+                throw new FailedToFetchCityTemprature("Failed to fetch temperature for city: " + city);
             } catch (Exception e) {
                 throw new WeatherApiException();
             }

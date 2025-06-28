@@ -1,10 +1,9 @@
 package com.maged.weather_app.controllers;
 
-import com.maged.weather_app.services.CityService;
+
 import com.maged.weather_app.services.WeatherService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,7 @@ public class WeatherController {
     @Autowired
     private WeatherService weatherService;
 
-    
+
     @GetMapping("/temperature")
     public String getTemperature() {
         String defaultCity = "New York";
